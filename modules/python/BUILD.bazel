@@ -18,7 +18,11 @@ proto_plugin(
     exclusions = [
         "google/protobuf",
     ],
-    outputs = ["{protopath|python}_pb2.py"],
+    extra_protoc_args=["--pyi_out={package_dir}"],
+    outputs = [
+        "{protopath|python}_pb2.py",
+        "{protopath|python}_pb2.pyi",
+    ],
     protoc_plugin_name = "python",
     visibility = ["//visibility:public"],
 )
@@ -28,14 +32,22 @@ proto_plugin(
     exclusions = [
         "google/protobuf",
     ],
-    outputs = ["{protopath|python}_pb2_grpc.py"],
-    tool = "@grpc//src/compiler:grpc_python_plugin",
+    extra_protoc_args=["--pyi_out={package_dir}"], # <-- what --flag goes here?? Something like --grpc-pyi_out??
+    outputs = [
+        "{protopath|python}_pb2_grpc.py",
+        "{protopath|python}_pb2_grpc.pyi",
+    ],
+    tool = "@grpc//src/compiler:grpc_python_plugin",  # <-- here we use "tool", above we use "protoc_plugin_name"...
     visibility = ["//visibility:public"],
 )
 
 proto_plugin(
     name = "grpclib_plugin",
-    outputs = ["{protopath}_grpc.py"],
-    tool = "//grpclib:plugin",
+    extra_protoc_args=["--pyi_out={package_dir}"], # <-- what --flag goes here?? Something like --grpc-pyi_out??
+    outputs = [
+        "{protopath}_grpc.py",
+        "{protopath}_grpc.pyi",
+    ],
+    tool = "//grpclib:plugin",  # <-- here we use "tool", above we use "protoc_plugin_name"...
     visibility = ["//visibility:public"],
 )

@@ -101,8 +101,19 @@ def build_protoc_args(
     args_list.append("--{}_out={}".format(plugin_name, out_arg))
 
     # Add any extra protoc args provided or that plugin has
-    args_list.extend(extra_protoc_args)
+    extra_protoc_args_tmp = []
+    extra_protoc_args_tmp.extend(extra_protoc_args)
     if plugin.extra_protoc_args:
-        args_list.extend(plugin.extra_protoc_args)
+        extra_protoc_args_tmp.extend(plugin.extra_protoc_args)
+
+    # enable "extra_protoc_args" items to have a '{package_dir}' var that gets
+    # substituted with the appropriate output location.
+    rel_premerge_root = "_rpg_premerge_{}".format(ctx.label.name)
+    package_dir = "{}/{}/{}".format(ctx.genfiles_dir.path, ctx.label.package, rel_premerge_root)
+    for extra_protoc_arg in extra_protoc_args_tmp:
+        formatted_arg = extra_protoc_arg.format(
+            package_dir=package_dir,
+        )
+        args_list.append(formatted_arg)
 
     return args_list, inputs, input_manifests
